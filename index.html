@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JCStreaming — Servicios de streaming</title>
+  <meta name="description" content="Página de venta de servicios de streaming." />
+  <style>
+    :root{
+      --bg-1:#0f172a;--bg-2:#071129;--accent:#ff6b6b;--accent2:#7c5cff;
+      --card-shadow: 0 10px 30px rgba(2,6,23,0.4);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;line-height:1.4;color:#e6eef8;background:radial-gradient(1200px 600px at 10% 10%,#0b1220 0%, #071129 28%, #041226 100%);padding:28px}
+    .container{max-width:1200px;margin:0 auto}
+    header{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;color:white;font-weight:800;box-shadow:0 6px 20px rgba(124,92,255,.18);font-size:18px}
+    nav a{margin-left:16px;text-decoration:none;color:#cbd5e1}
+
+    /* Hero */
+    .hero{display:grid;grid-template-columns:1fr 460px;gap:28px;align-items:start;margin:28px 0}
+    .hero h1{font-size:2.1rem;margin-bottom:8px;color: #f8fafc}
+    .hero p{color:#a9b3c9}
+    .btn{display:inline-block;padding:10px 16px;border-radius:12px;text-decoration:none;font-weight:700;cursor:pointer;border:none}
+    .btn-primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:white;box-shadow:0 6px 20px rgba(124,92,255,.12);}
+    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#cbd5e1}
+
+    /* Services grid */
+    .services-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin:18px 0}
+    .service{background:linear-gradient(180deg,rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:16px;border-radius:14px;box-shadow:var(--card-shadow);backdrop-filter: blur(6px);border:1px solid rgba(255,255,255,0.03);transform-origin:center;transition:transform .35s cubic-bezier(.2,.9,.3,1), box-shadow .35s;position:relative;overflow:hidden}
+    .service:hover{transform:translateY(-8px) scale(1.02);box-shadow:0 20px 40px rgba(2,6,23,0.65)}
+    .service .ribbon{position:absolute;right:12px;top:12px;background:linear-gradient(90deg,var(--accent2),var(--accent));padding:6px 10px;border-radius:8px;font-size:.8rem;color:white}
+    .service h3{margin-bottom:6px;color:#f1f5f9}
+    .price{font-size:1.4rem;font-weight:800;margin-top:8px;color:#fff}
+    .meta{font-size:.95rem;color:#9fb0cf;margin-top:6px}
+    .small{font-size:.85rem;color:#89a2c6}
+
+    /* Panel */
+    .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border-radius:12px;position:sticky;top:20px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 10px 28px rgba(2,6,23,0.45)}
+    label{font-size:.85rem;color:#bcd1ea}
+
+    /* Cart list */
+    .cart-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+    .cart-item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03)}
+
+    footer{margin-top:36px;padding:18px 0;color:#98a8c4;font-size:.9rem}
+
+    /* Modal styles */
+    .modal-backdrop{position:fixed;inset:0;background:linear-gradient(0deg, rgba(2,6,23,0.6), rgba(2,6,23,0.6));display:none;align-items:center;justify-content:center;z-index:200}
+    .modal{width:420px;background:linear-gradient(180deg,#071029,#0e1530);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 20px 60px rgba(2,6,23,0.7);transform:translateY(30px) scale(.98);opacity:0}
+    .modal.show{animation:modalIn .42s cubic-bezier(.2,.9,.3,1) forwards}
+    @keyframes modalIn{to{transform:translateY(0) scale(1);opacity:1}}
+    .preview-modal{display:flex;gap:12px;align-items:center}
+    .svc-logo{width:72px;height:72px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:28px}
+
+    .toast{position:fixed;right:20px;bottom:24px;background:#07172a;border-radius:10px;padding:12px 16px;color:#cdebe8;box-shadow:0 8px 30px rgba(2,6,23,0.6);display:none;z-index:250}
+    .confetti-piece{position:fixed;width:10px;height:16px;opacity:0.95;z-index:260;border-radius:2px;transform-origin:center;pointer-events:none}
+
+    @media (max-width:920px){
+      .hero{grid-template-columns:1fr}
+      .panel{position:static}
+      .modal{width:92vw}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">JC</div>
+        <div>
+          <div style="font-weight:800;color:#f8fafc">JCStreaming</div>
+          <div style="font-size:.85rem;color:#98a8c4">Accesos digitales</div>
+        </div>
+      </div>
+      <nav>
+        <a href="#services">Servicios</a>
+        <a href="#cart">Carrito</a>
+        <a href="#contact">Contacto</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div>
+        <h1>Tu biblioteca digital — ahora con estilo</h1>
+        <p>Selecciona servicios y agrégalos al carrito. Cuando estés listo, envía tu pedido por WhatsApp con un solo clic.</p>
+
+        <section id="services" style="margin-top:18px">
+          <h2 style="font-size:1.1rem;margin-bottom:10px;color:#dbeafe">Servicios disponibles</h2>
+          <div class="services-list" id="servicesList"></div>
+        </section>
+      </div>
+
+      <aside class="panel" aria-label="Panel de compra" id="pricing">
+        <h3 style="margin-bottom:8px;color:#e6eef8">Carrito</h3>
+        <div id="cartEmpty" style="color:#cdebe8">Aún no hay artículos en el carrito</div>
+        <div class="cart-list" id="cartList" style="display:none"></div>
+
+        <div id="cartSummary" style="margin-top:12px;display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:700;color:#e6eef8">Total</div><div id="totalPrice" style="font-weight:800;color:#fff">$0</div></div>
+          <div id="discountNote" style="margin-top:6px;color:#ffdca8;display:none">Descuentos pueden aplicar por su compra de más de una cuenta</div>
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <button class="btn btn-primary" id="whatsappBtn">Contactar por WhatsApp</button>
+            <button class="btn btn-ghost" id="clearCartBtn">Vaciar carrito</button>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section id="contact" style="margin-top:18px;color:#9fb0cf">
+      <h2 style="margin-bottom:8px;color:#dbeafe">Contacto y soporte</h2>
+      <p>Para compras empresariales o packs grandes, escribe a <strong>ventas@jcstreaming.example</strong>.</p>
+    </section>
+
+    <footer>
+      <div style="color:#91a7c9">© <span id="year"></span> JCStreaming · Términos · Privacidad</div>
+    </footer>
+  </div>
+
+  <!-- Preview Modal -->
+  <div class="modal-backdrop" id="previewBackdrop" role="dialog" aria-modal="true">
+    <div class="modal" id="previewModal">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:12px" class="preview-modal">
+          <div id="previewLogo" class="svc-logo" style="background:#333">JC</div>
+          <div>
+            <div id="previewTitle" style="font-weight:700;color:#e6eef8">Servicio</div>
+            <div id="previewSub" style="color:#9fb0cf;font-size:.95rem">Detalle</div>
+          </div>
+        </div>
+        <button onclick="closePreview()" style="background:transparent;border:none;color:#9fb0cf;cursor:pointer">✕</button>
+      </div>
+      <div style="color:#bcd1ea;margin-bottom:8px" id="previewBody">Información</div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn btn-ghost" onclick="closePreview()">Cerrar</button>
+        <button class="btn btn-primary" id="previewAdd">Agregar al carrito</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Acción realizada</div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Servicios
+    const services = [
+      {id:'net1', title:'Netflix — 1 mes / por pantalla', price:3, duration:'1 mes', note:'1 mes / por pantalla'},
+      {id:'net2', title:'Netflix — 2 meses / por pantalla', price:5, duration:'2 meses', note:'2 meses / por pantalla'},
+      {id:'net3', title:'Netflix — Cuenta completa (5 pantallas)', price:13, duration:'Cuenta completa 5 pantallas', note:'Cuenta completa (5 pantallas)'},
+      {id:'disney', title:'Disney+ Premium (Star+ & ESPN) — por pantalla', price:2, duration:'1 mes', note:'1 mes / por pantalla'},
+      {id:'prime', title:'Amazon Prime — por pantalla', price:2, duration:'1 mes', note:'1 mes / por pantalla'},
+      {id:'hbo', title:'HBO Max — por pantalla', price:2, duration:'1 mes', note:'1 mes / por pantalla'},
+      {id:'paramount', title:'Paramount — por pantalla', price:2, duration:'1 mes', note:'1 mes / por pantalla'},
+      {id:'flujo', title:'FlujoTV — por pantalla', price:3, duration:'1 mes', note:'1 mes / por pantalla'},
+      {id:'crunchy', title:'Crunchyroll Mega Fan', price:2.5, duration:'1 mes', note:'Suscripción Mega Fan'},
+      {id:'spotify', title:'Spotify — 3 meses', price:7.5, duration:'3 meses', note:'3 meses'},
+      {id:'canva', title:'Canva Pro — 3 meses', price:5, duration:'3 meses', note:'3 meses'},
+      {id:'yt', title:'YouTube Premium — 3 meses', price:7.5, duration:'3 meses', note:'3 meses'},
+      {id:'vix', title:'Vix — 1 mes', price:3, duration:'1 mes', note:'1 mes'},
+      {id:'googleone', title:'Google One — 100 GB', price:3, duration:'1 mes', note:'100 GB / 1 mes'}
+    ];
+
+    // Mapa simple de logos (colores y texto corto)
+    const logoMap = {
+      net1: {bg:'#e50914', label:'N'}, net2:{bg:'#e50914', label:'N'}, net3:{bg:'#e50914', label:'N'},
+      disney:{bg:'#113ccf', label:'D+'}, prime:{bg:'#00a8e1', label:'A'}, hbo:{bg:'#4b2dff', label:'HB'},
+      paramount:{bg:'#0466c8', label:'P'}, flujo:{bg:'#ff7a00', label:'F'}, crunchy:{bg:'#ff5c8a', label:'CR'},
+      spotify:{bg:'#1db954', label:'S'}, canva:{bg:'#00c2a8', label:'C'}, yt:{bg:'#ff0000', label:'YT'},
+      vix:{bg:'#2b6aeb', label:'VIX'}, googleone:{bg:'#4285F4', label:'G1'
+    }};
+
+    const servicesList = document.getElementById('servicesList');
+
+    // Renderizar tarjetas
+    services.forEach((s, idx) => {
+      const div = document.createElement('div');
+      div.className = 'service';
+      const ribbon = (s.price<=2.5) ? `<div class="ribbon">Económico</div>` : (s.id==='net3'?`<div class="ribbon">Popular</div>`:'');
+      div.innerHTML = `${ribbon}<h3>${s.title}</h3><div class="meta">${s.note}</div><div class="price">$${s.price}</div><div style="margin-top:12px;display:flex;gap:8px"><button class='btn btn-primary' onclick="openPreview('${s.id}')">Vista rápida</button></div>`;
+      div.style.animation = `fadeUp .5s ease ${idx*70}ms both`;
+      div.style.opacity = 0;
+      servicesList.appendChild(div);
+    });
+
+    const style = document.createElement('style');
+    style.innerHTML = `@keyframes fadeUp{from{opacity:0;transform:translateY(12px) scale(.995)}to{opacity:1;transform:translateY(0) scale(1)}}`;
+    document.head.appendChild(style);
+
+    // Cart
+    let cart = [];
+    const cartList = document.getElementById('cartList');
+    const cartEmpty = document.getElementById('cartEmpty');
+    const cartSummary = document.getElementById('cartSummary');
+    const totalPriceEl = document.getElementById('totalPrice');
+    const discountNote = document.getElementById('discountNote');
+    const whatsappBtn = document.getElementById('whatsappBtn');
+    const clearCartBtn = document.getElementById('clearCartBtn');
+
+    function renderCart(){
+      if(cart.length===0){
+        cartList.style.display='none';
+        cartSummary.style.display='none';
+        cartEmpty.style.display='block';
+        return;
+      }
+      cartList.style.display='flex';
+      cartList.innerHTML = '';
+      cart.forEach((item, i)=>{
+        const el = document.createElement('div');
+        el.className = 'cart-item';
+        el.innerHTML = `<div><strong>${item.title}</strong><div class='small' style='color:#9fb0cf'>${item.duration}</div></div><div style='display:flex;gap:8px;align-items:center'><div style='font-weight:800'>$${item.price}</div><button class='btn btn-ghost' onclick='removeFromCart(${i})'>Eliminar</button></div>`;
+        cartList.appendChild(el);
+      });
+      cartEmpty.style.display='none';
+      cartSummary.style.display='block';
+      const total = cart.reduce((sum,it)=>sum+Number(it.price),0);
+      totalPriceEl.textContent = '$' + (Math.round(total*100)/100);
+      discountNote.style.display = cart.length>1 ? 'block':'none';
+    }
+
+    function addToCartById(id){
+      const s = services.find(x=>x.id===id);
+      if(!s) return;
+      cart.push({...s});
+      renderCart();
+      showToast(`${s.title} agregado al carrito`);
+    }
+
+    function removeFromCart(index){
+      cart.splice(index,1);
+      renderCart();
+    }
+
+    clearCartBtn.addEventListener('click', ()=>{ cart = []; renderCart(); showToast('Carrito vaciado'); });
+
+    // Preview modal handling
+    const previewBackdrop = document.getElementById('previewBackdrop');
+    const previewModal = document.getElementById('previewModal');
+    const previewLogo = document.getElementById('previewLogo');
+    const previewTitle = document.getElementById('previewTitle');
+    const previewSub = document.getElementById('previewSub');
+    const previewBody = document.getElementById('previewBody');
+    const previewAdd = document.getElementById('previewAdd');
+
+    let previewCurrent = null;
+
+    function getLogoHtml(id){
+      const m = logoMap[id] || {bg:'#444', label:id.slice(0,2).toUpperCase()};
+      return `<div style="width:72px;height:72px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${m.bg};font-weight:800;color:white;font-size:28px">${m.label}</div>`;
+    }
+
+    function openPreview(id){
+      const s = services.find(x=>x.id===id);
+      if(!s) return;
+      previewCurrent = s;
+      previewLogo.innerHTML = getLogoHtml(id);
+      previewTitle.textContent = s.title.split('—')[0].trim();
+      previewSub.textContent = s.note + ' · ' + s.duration;
+      previewBody.innerHTML = `<div style="margin-bottom:6px;color:#bcd1ea">Resumen rápido del servicio.</div><div style="font-weight:800;color:#fff;font-size:1.2rem">Precio: $${s.price} — ${s.duration}</div>`;
+      previewAdd.onclick = ()=>{ addToCartById(id); closePreview(); };
+      previewBackdrop.style.display = 'flex';
+      setTimeout(()=> previewModal.classList.add('show'),10);
+    }
+
+    function closePreview(){
+      previewModal.classList.remove('show');
+      setTimeout(()=> previewBackdrop.style.display = 'none', 260);
+    }
+
+    previewBackdrop.addEventListener('click', (e)=>{ if(e.target===previewBackdrop) closePreview(); });
+    window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closePreview(); });
+
+    // Toast
+    function showToast(text){
+      const t = document.getElementById('toast');
+      t.textContent = text;
+      t.style.display = 'block';
+      t.style.opacity = 0;
+      t.animate([{opacity:0, transform:'translateY(10px)'},{opacity:1, transform:'translateY(0)'}],{duration:260,fill:'forwards'});
+      setTimeout(()=>{t.animate([{opacity:1, transform:'translateY(0)'},{opacity:0, transform:'translateY(10px)'}],{duration:300,fill:'forwards'});},1800);
+    }
+
+    // WhatsApp integration: usa el link que proporcionaste y añadimos ?text=...
+    const WHATSAPP_BASE = 'https://wa.me/qr/UC74RTXTNMZWJ1';
+
+    function buildWhatsAppMessage(){
+      if(cart.length===0) return '';
+      let lines = ['Hola, quiero adquirir los siguientes servicios:'];
+      cart.forEach(it => {
+        lines.push(`- ${it.title.replace(/\\s+/g,' ')} — ${it.price}$ — ${it.duration}`);
+      });
+      const total = cart.reduce((sum,it)=>sum+Number(it.price),0);
+      lines.push('');
+      lines.push('Total: $' + (Math.round(total*100)/100));
+      if(cart.length>1) lines.push('Nota: Descuentos pueden aplicar por su compra de más de una cuenta');
+      lines.push('Por favor contáctenme para coordinar la entrega.');
+      return encodeURIComponent(lines.join('\n'));
+    }
+
+    whatsappBtn.addEventListener('click', ()=>{
+      if(cart.length===0){ showToast('El carrito está vacío'); return; }
+      const msg = buildWhatsAppMessage();
+      // Intentamos abrir el enlace con texto; algunos endpoints aceptan ?text=, lo probamos así
+      const url = WHATSAPP_BASE + '?text=' + msg;
+      window.location.href = url;
+    });
+
+    // Inicializar render
+    renderCart();
+
+  </script>
+</body>
+</html>
