@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JCStreaming — Servicios de streaming</title>
+  <meta name="description" content="Venta de servicios de streaming." />
+  <style>
+    :root{
+      --bg:#071026;
+      --card:#0b1220;
+      --muted:#9fb0cf;
+      --accent:#ff6b6b;
+      --accent2:#7c5cff;
+      --glass: rgba(255,255,255,0.03);
+      --card-shadow: 0 10px 30px rgba(2,6,23,0.6);
+      --panel-width: 360px;
+      --gap:18px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family:Inter,system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      color:#e6eef8;background:linear-gradient(180deg,var(--bg),#031024);
+      padding:28px;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    .container{max-width:1200px;margin:0 auto;display:block}
+
+    header{display:flex;align-items:center;justify-content:space-between;padding:12px 0}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;color:white;font-weight:800}
+    .brand h1{font-size:1rem;margin:0}
+    nav{display:flex;gap:16px}
+    nav a{color:var(--muted);text-decoration:none;font-size:.95rem}
+
+    /* Layout: main hero + panel */
+    .hero{display:grid;grid-template-columns:1fr var(--panel-width);gap:var(--gap);align-items:start;margin-top:12px}
+    @media (max-width:1000px){
+      .hero{grid-template-columns:1fr; padding-bottom:20px}
+    }
+
+    /* Left column */
+    .left{padding-right:6px}
+    h2,h1{color:#e6eef8}
+    .subtitle{color:var(--muted);margin-bottom:12px}
+
+    /* services grid */
+    .services-list{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap:14px;
+    }
+    .service{
+      background:var(--card);
+      border:1px solid var(--glass);
+      border-radius:12px;padding:14px;box-shadow:var(--card-shadow);
+      display:flex;flex-direction:column;justify-content:space-between;
+      transition:transform .22s ease, box-shadow .22s ease;
+      min-height:120px;
+    }
+    .service:hover{transform:translateY(-6px);box-shadow:0 20px 40px rgba(2,6,23,0.7)}
+    .service h3{font-size:1rem;margin-bottom:6px;color:#f4f7fb}
+    .service .meta{color:var(--muted);font-size:.86rem;margin-bottom:8px}
+    .service .price{font-weight:800;color:#fff;font-size:1.05rem}
+    .service .actions{margin-top:10px;display:flex;gap:8px;align-items:center}
+
+    /* right panel (cart) */
+    .panel{
+      width:100%;
+      max-width:var(--panel-width);
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.03);
+      box-shadow:0 8px 30px rgba(0,0,0,0.6);
+      height:fit-content;
+      position:sticky;top:24px;
+    }
+    .panel h3{margin-bottom:10px}
+    #cartList{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+    .cart-item{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03)}
+    .cart-empty{color:var(--muted)}
+
+    /* Buttons */
+    .btn{padding:8px 12px;border-radius:10px;font-weight:700;cursor:pointer;border:none}
+    .btn-primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:white}
+    .btn-ghost{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.04)}
+
+    /* footer and toast */
+    footer{margin-top:28px;text-align:center;color:var(--muted)}
+    .toast{position:fixed;right:20px;bottom:24px;background:#07172a;padding:10px 14px;border-radius:8px;color:#dbeafe;display:none;z-index:200}
+
+    /* small devices */
+    @media (max-width:520px){
+      .services-list{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+      .logo{width:40px;height:40px}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">JC</div>
+        <div>
+          <h1 style="margin:0;font-size:1.1rem;color:#e6eef8">JCStreaming</h1>
+          <div style="font-size:.85rem;color:var(--muted)">Accesos digitales</div>
+        </div>
+      </div>
+      <nav>
+        <a href="#services">Servicios</a>
+        <a href="#cart">Carrito</a>
+        <a href="#contact">Contacto</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <!-- LEFT: Servicios -->
+      <div class="left">
+        <h2>Tu biblioteca digital — ahora con estilo</h2>
+        <p class="subtitle">Selecciona tus servicios favoritos y envía tu pedido personalizado por WhatsApp.</p>
+
+        <div id="services" class="services-list" aria-live="polite"></div>
+      </div>
+
+      <!-- RIGHT: Panel carrito -->
+      <aside class="panel" id="cartPanel">
+        <h3>🛒 Carrito</h3>
+        <div id="cartEmpty" class="cart-empty">Aún no hay artículos en el carrito</div>
+        <div id="cartList" style="display:none"></div>
+
+        <div id="cartSummary" style="display:none;margin-top:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <strong>Total</strong>
+            <div id="totalPrice">$0.00</div>
+          </div>
+          <div id="discountNote" style="color:#ffdca8;margin-top:8px;display:none">
+            💸 Descuentos pueden aplicar por su compra de más de una cuenta
+          </div>
+
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <button id="whatsappBtn" class="btn btn-primary">Contactar por WhatsApp</button>
+            <button id="clearCartBtn" class="btn btn-ghost">Vaciar</button>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section id="contact" style="margin-top:20px;color:var(--muted)">
+      <h3 style="color:#e6eef8">Contacto y soporte</h3>
+      <p>Para packs grandes escribe a <strong style="color:#e6eef8">ventas@jcstreaming.example</strong></p>
+    </section>
+
+    <footer>© <span id="year"></span> JCStreaming — Todos los derechos reservados</footer>
+  </div>
+
+  <div class="toast" id="toast">Acción realizada</div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Datos de servicios (misma lista que antes)
+    const services = [
+      {id:'net1', title:'Netflix — 1 mes / por pantalla', price:3, duration:'1 mes'},
+      {id:'net2', title:'Netflix — 2 meses / por pantalla', price:5, duration:'2 meses'},
+      {id:'net3', title:'Netflix — Cuenta completa (5 pantallas)', price:13, duration:'Cuenta completa 5 pantallas'},
+      {id:'disney', title:'Disney+ Premium (Star+ & ESPN)', price:2, duration:'1 mes'},
+      {id:'prime', title:'Amazon Prime', price:2, duration:'1 mes'},
+      {id:'hbo', title:'HBO Max', price:2, duration:'1 mes'},
+      {id:'paramount', title:'Paramount+', price:2, duration:'1 mes'},
+      {id:'flujo', title:'FlujoTV', price:3, duration:'1 mes'},
+      {id:'crunchy', title:'Crunchyroll Mega Fan', price:2.5, duration:'1 mes'},
+      {id:'spotify', title:'Spotify', price:7.5, duration:'3 meses'},
+      {id:'canva', title:'Canva Pro', price:5, duration:'3 meses'},
+      {id:'yt', title:'YouTube Premium', price:7.5, duration:'3 meses'},
+      {id:'vix', title:'Vix', price:3, duration:'1 mes'},
+      {id:'googleone', title:'Google One — 100 GB', price:3, duration:'1 mes'}
+    ];
+
+    const WHATSAPP_BASE = 'https://wa.me/584128574400'; // tu número
+
+    // DOM refs
+    const servicesEl = document.getElementById('services');
+    const cartListEl = document.getElementById('cartList');
+    const cartEmptyEl = document.getElementById('cartEmpty');
+    const cartSummaryEl = document.getElementById('cartSummary');
+    const totalPriceEl = document.getElementById('totalPrice');
+    const discountNoteEl = document.getElementById('discountNote');
+    const whatsappBtn = document.getElementById('whatsappBtn');
+    const clearCartBtn = document.getElementById('clearCartBtn');
+    const toastEl = document.getElementById('toast');
+
+    let cart = [];
+
+    // RENDER servicios (cards)
+    function renderServices(){
+      servicesEl.innerHTML = '';
+      services.forEach(s=>{
+        const card = document.createElement('div');
+        card.className = 'service';
+        card.innerHTML = `
+          <div>
+            <h3>${s.title}</h3>
+            <div class="meta">${s.duration}</div>
+          </div>
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px">
+            <div class="price">$${Number(s.price).toFixed(2)}</div>
+            <div class="actions">
+              <button class="btn btn-primary" data-id="${s.id}">Agregar</button>
+            </div>
+          </div>
+        `;
+        servicesEl.appendChild(card);
+      });
+
+      // attach click handlers for add buttons (delegation would also work)
+      document.querySelectorAll('.service .btn-primary').forEach(b=>{
+        b.addEventListener('click', ()=> addToCart(b.dataset.id));
+      });
+    }
+
+    // RENDER carrito
+    function renderCart(){
+      if(cart.length === 0){
+        cartListEl.style.display = 'none';
+        cartSummaryEl.style.display = 'none';
+        cartEmptyEl.style.display = 'block';
+        return;
+      }
+      cartListEl.style.display = 'block';
+      cartSummaryEl.style.display = 'block';
+      cartEmptyEl.style.display = 'none';
+      cartListEl.innerHTML = '';
+
+      cart.forEach((item,i)=>{
+        const row = document.createElement('div');
+        row.className = 'cart-item';
+        row.innerHTML = `<div style="max-width:70%"><strong>${item.title}</strong><div style="color:var(--muted);font-size:.86rem">${item.duration}</div></div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <div style="font-weight:800">$${Number(item.price).toFixed(2)}</div>
+            <button class="btn btn-ghost" data-idx="${i}">Eliminar</button>
+          </div>`;
+        cartListEl.appendChild(row);
+      });
+
+      // attach delete handlers
+      cartListEl.querySelectorAll('.btn-ghost').forEach(b=>{
+        b.addEventListener('click', ()=> removeFromCart(Number(b.dataset.idx)));
+      });
+
+      const total = cart.reduce((s,it)=>s+Number(it.price),0);
+      totalPriceEl.textContent = '$' + total.toFixed(2);
+      discountNoteEl.style.display = cart.length > 1 ? 'block' : 'none';
+    }
+
+    function addToCart(id){
+      const s = services.find(x=>x.id===id);
+      if(!s) return;
+      cart.push({...s});
+      renderCart();
+      showToast(`${s.title} agregado`);
+    }
+    function removeFromCart(idx){
+      cart.splice(idx,1);
+      renderCart();
+      showToast('Artículo eliminado');
+    }
+
+    clearCartBtn.addEventListener('click', ()=>{
+      cart = [];
+      renderCart();
+      showToast('Carrito vaciado');
+    });
+
+    // Construye mensaje legible y con saltos (encodeURI preserva emojis y saltos)
+    function buildWhatsAppMessage(){
+      if(cart.length===0) return '';
+      const lines = [];
+      lines.push('*Pedido desde JCStreaming* 📺');
+      lines.push('');
+      cart.forEach(it => lines.push(`• ${it.title} — $${Number(it.price).toFixed(2)} — ${it.duration}`));
+      lines.push('');
+      const total = cart.reduce((s,it)=>s+Number(it.price),0);
+      lines.push(`💰 *Total:* $${total.toFixed(2)}`);
+      if(cart.length>1) lines.push('💸 Descuentos pueden aplicar por la compra de más de una cuenta.');
+      lines.push('');
+      lines.push('Por favor confírmame disponibilidad y pasos para el pago 🙌.');
+      return encodeURI(lines.join('\n'));
+    }
+
+    whatsappBtn.addEventListener('click', ()=>{
+      if(cart.length===0){ showToast('El carrito está vacío'); return; }
+      const msg = buildWhatsAppMessage();
+      window.open(WHATSAPP_BASE + '?text=' + msg, '_blank');
+    });
+
+    // toast helper
+    function showToast(text){
+      toastEl.textContent = text;
+      toastEl.style.display = 'block';
+      toastEl.style.opacity = '1';
+      setTimeout(()=>{ toastEl.style.opacity='0'; }, 2000);
+      setTimeout(()=>{ toastEl.style.display='none'; }, 2300);
+    }
+
+    // init
+    renderServices();
+    renderCart();
+  </script>
+</body>
+</html>
