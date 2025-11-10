@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JCStreaming — Servicios de streaming</title>
+  <meta name="description" content="Página de venta de servicios de streaming (simulada)." />
+  <style>
+    :root{
+      --bg-1:#0f172a;--bg-2:#071129;--accent:#ff6b6b;--accent2:#7c5cff;--glass:rgba(255,255,255,0.06);
+      --card-shadow: 0 10px 30px rgba(2,6,23,0.4);
+      --glass-2: rgba(255,255,255,0.04);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;line-height:1.4;color:#e6eef8;background:radial-gradient(1200px 600px at 10% 10%,#0b1220 0%, #071129 28%, #041226 100%);padding:28px}
+    .container{max-width:1200px;margin:0 auto}
+    header{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;color:white;font-weight:800;box-shadow:0 6px 20px rgba(124,92,255,.18);font-size:18px}
+    nav a{margin-left:16px;text-decoration:none;color:#cbd5e1}
+
+    /* Hero */
+    .hero{display:grid;grid-template-columns:1fr 460px;gap:28px;align-items:start;margin:28px 0}
+    .hero h1{font-size:2.1rem;margin-bottom:8px;color: #f8fafc}
+    .hero p{color:#a9b3c9}
+    .cta{margin-top:16px}
+    .btn{display:inline-block;padding:10px 16px;border-radius:12px;text-decoration:none;font-weight:700;cursor:pointer;border:none}
+    .btn-primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:white;box-shadow:0 6px 20px rgba(124,92,255,.12);}
+    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#cbd5e1}
+
+    /* Services grid fancy */
+    .services-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin:18px 0}
+    .service{background:linear-gradient(180deg,rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:16px;border-radius:14px;box-shadow:var(--card-shadow);backdrop-filter: blur(6px);border:1px solid rgba(255,255,255,0.03);transform-origin:center;transition:transform .35s cubic-bezier(.2,.9,.3,1), box-shadow .35s;position:relative;overflow:hidden}
+    .service:hover{transform:translateY(-8px) scale(1.02);box-shadow:0 20px 40px rgba(2,6,23,0.65)}
+    .service .ribbon{position:absolute;right:12px;top:12px;background:linear-gradient(90deg,var(--accent2),var(--accent));padding:6px 10px;border-radius:8px;font-size:.8rem;color:white}
+    .service h3{margin-bottom:6px;color:#f1f5f9}
+    .price{font-size:1.4rem;font-weight:800;margin-top:8px;color:#fff}
+    .meta{font-size:.95rem;color:#9fb0cf;margin-top:6px}
+    .small{font-size:.85rem;color:#89a2c6}
+
+    /* Panel */
+    .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border-radius:12px;position:sticky;top:20px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 10px 28px rgba(2,6,23,0.45)}
+    form{display:flex;flex-direction:column;gap:10px}
+    label{font-size:.85rem;color:#bcd1ea}
+    input[type=text],input[type=email],select{padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#e6eef8}
+    .success{background:linear-gradient(90deg,#0f172a,#06202b);border:1px solid rgba(255,255,255,0.03);padding:12px;border-radius:8px;color:#78f5c1}
+
+    footer{margin-top:36px;padding:18px 0;color:#98a8c4;font-size:.9rem}
+
+    /* Modal styles */
+    .modal-backdrop{position:fixed;inset:0;background:linear-gradient(0deg, rgba(2,6,23,0.6), rgba(2,6,23,0.6));display:none;align-items:center;justify-content:center;z-index:200}
+    .modal{width:420px;background:linear-gradient(180deg,#071029,#0e1530);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 20px 60px rgba(2,6,23,0.7);transform:translateY(30px) scale(.98);opacity:0}
+    .modal.show{animation:modalIn .42s cubic-bezier(.2,.9,.3,1) forwards}
+    @keyframes modalIn{to{transform:translateY(0) scale(1);opacity:1}}
+
+    /* Preview modal (larger header for logo) */
+    .preview-modal{display:flex;gap:12px;align-items:center}
+    .svc-logo{width:72px;height:72px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:28px;color:white}
+
+    /* Toast */
+    .toast{position:fixed;right:20px;bottom:24px;background:#07172a;border-radius:10px;padding:12px 16px;color:#cdebe8;box-shadow:0 8px 30px rgba(2,6,23,0.6);display:none;z-index:250}
+
+    /* Confetti */
+    .confetti-piece{position:fixed;width:10px;height:16px;opacity:0.95;z-index:260;border-radius:2px;transform-origin:center;pointer-events:none}
+
+    /* Animations */
+    .glow{animation:glow 2.6s infinite}
+    @keyframes glow{0%{box-shadow:0 4px 18px rgba(124,92,255,0.08)}50%{box-shadow:0 10px 28px rgba(124,92,255,0.18)}100%{box-shadow:0 4px 18px rgba(124,92,255,0.08)}}
+
+    @media (max-width:920px){
+      .hero{grid-template-columns:1fr}
+      .panel{position:static}
+      .modal{width:92vw}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">JC</div>
+        <div>
+          <div style="font-weight:800;color:#f8fafc">JCStreaming</div>
+          <div style="font-size:.85rem;color:#98a8c4">Accesos digitales y servicios VIP</div>
+        </div>
+      </div>
+      <nav>
+        <a href="#services">Servicios</a>
+        <a href="#pricing">Precios</a>
+        <a href="#contact">Contacto</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div>
+        <h1>Tu biblioteca digital — ahora con estilo</h1>
+        <p>Planes por pantalla, cuentas completas y servicios VIP. Interfaz animada y confirmaciones visuales para mejorar la experiencia.</p>
+
+        <section id="services" style="margin-top:18px">
+          <h2 style="font-size:1.1rem;margin-bottom:10px;color:#dbeafe">Servicios disponibles</h2>
+          <div class="services-list" id="servicesList">
+            <!-- Generado por JS -->
+          </div>
+        </section>
+      </div>
+
+      <aside class="panel" aria-label="Panel de compra" id="pricing">
+        <h3 style="margin-bottom:8px;color:#e6eef8">Tu selección</h3>
+        <div id="selectedCard" style="margin-bottom:8px;color:#cdebe8">Ningún servicio seleccionado</div>
+
+        <div id="checkout" style="display:none">
+          <form id="orderForm" onsubmit="handleOrder(event)">
+            <label for="name">Nombre</label>
+            <input id="name" type="text" required placeholder="Tu nombre" />
+            <label for="email">Correo electrónico</label>
+            <input id="email" type="email" required placeholder="correo@ejemplo.com" />
+            <label for="payment">Método de pago (simulado)</label>
+            <select id="payment">
+              <option>Tarjeta de crédito</option>
+              <option>PayPal</option>
+              <option>Transferencia</option>
+            </select>
+            <button class="btn btn-primary" type="submit">Confirmar y pagar</button>
+          </form>
+          <div id="result" style="margin-top:8px"></div>
+        </div>
+
+        <div style="margin-top:12px;font-size:.85rem;color:#98a8c4">Servicio VIP: <strong>Fotos hot de jhosep</strong> — precio privado, se muestra al solicitar.</div>
+      </aside>
+    </section>
+
+    <section id="contact" style="margin-top:18px;color:#9fb0cf">
+      <h2 style="margin-bottom:8px;color:#dbeafe">Contacto y soporte</h2>
+      <p>Para compras empresariales o packs grandes, escribe a <strong>ventas@jcstreaming.example</strong>. Esta demo no procesa pagos reales.</p>
+    </section>
+
+    <footer>
+      <div style="color:#91a7c9">© <span id="year"></span> JCStreaming · Términos · Privacidad</div>
+    </footer>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true">
+    <div class="modal" id="modal">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-weight:700;color:#e6eef8" id="modalTitle">Confirmar servicio</div>
+        <button onclick="closeModal()" style="background:transparent;border:none;color:#9fb0cf;cursor:pointer">✕</button>
+      </div>
+      <div id="modalBody" style="color:#bcd1ea;margin-bottom:12px">Detalle del servicio seleccionado</div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+        <button class="btn btn-primary" id="modalConfirm">Confirmar y pagar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview Modal -->
+  <div class="modal-backdrop" id="previewBackdrop" role="dialog" aria-modal="true">
+    <div class="modal" id="previewModal">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:12px" class="preview-modal">
+          <div id="previewLogo" class="svc-logo" style="background:#333">JC</div>
+          <div>
+            <div id="previewTitle" style="font-weight:700;color:#e6eef8">Servicio</div>
+            <div id="previewSub" style="color:#9fb0cf;font-size:.95rem">Detalle</div>
+          </div>
+        </div>
+        <button onclick="closePreview()" style="background:transparent;border:none;color:#9fb0cf;cursor:pointer">✕</button>
+      </div>
+      <div style="color:#bcd1ea;margin-bottom:8px" id="previewBody">Información</div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn btn-ghost" onclick="closePreview()">Cerrar</button>
+        <button class="btn btn-primary" id="previewBuy">Comprar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Pedido exitoso</div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const services = [
+      {id:'net1', title:'Netflix — 1 mes / por pantalla', price:3, duration:'1 mes', note:'1 mes / por pantalla'},
+      {id:'net2', title:'Netflix — 2 meses / por pantalla', price:5, duration:'2 meses', note:'2 meses / por pantalla'},
+      {id:'net3', title:'Netflix — Cuenta completa (5 pantallas)', price:13, duration:'Cuenta completa 5 pantallas', note:'Cuenta completa (5 pantallas)'},
+      {id:'disney', title:'Disney+ Premium (Star+ & ESPN) — por pantalla', price:2, duration:'1 mes', note:'1 mes / por pantalla'},
+      {id:'prime', title:'Amazon Prime — por pantalla', price:2, duration:'1 mes', note:'1 mes / por pantalla'},
+      {id:'hbo', title:'HBO Max — por pantalla', price:2, duration:'1 mes', note:'1 mes / por pantalla'},
+      {id:'paramount', title:'Paramount — por pantalla', price:2, duration:'1 mes', note:'1 mes / por pantalla'},
+      {id:'flujo', title:'FlujoTV — por pantalla', price:3, duration:'1 mes', note:'1 mes / por pantalla'},
+      {id:'crunchy', title:'Crunchyroll Mega Fan', price:2.5, duration:'1 mes', note:'Suscripción Mega Fan'},
+      {id:'spotify', title:'Spotify — 3 meses', price:7.5, duration:'3 meses', note:'3 meses'},
+      {id:'canva', title:'Canva Pro — 3 meses', price:5, duration:'3 meses', note:'3 meses'},
+      {id:'yt', title:'YouTube Premium — 3 meses', price:7.5, duration:'3 meses', note:'3 meses'},
+      {id:'vix', title:'Vix — 1 mes', price:3, duration:'1 mes', note:'1 mes'},
+      {id:'googleone', title:'Google One — 100 GB', price:3, duration:'1 mes', note:'100 GB / 1 mes'}
+    ];
+
+    const logoMap = {
+      net1: {bg:'#e50914', label:'N'}, net2:{bg:'#e50914', label:'N'}, net3:{bg:'#e50914', label:'N'},
+      disney:{bg:'#113ccf', label:'D+'}, prime:{bg:'#00a8e1', label:'A'}, hbo:{bg:'#4b2dff', label:'HB'},
+      paramount:{bg:'#0466c8', label:'P'}, flujo:{bg:'#ff7a00', label:'F'}, crunchy:{bg:'#ff5c8a', label:'CR'},
+      spotify:{bg:'#1db954', label:'S'}, canva:{bg:'#00c2a8', label:'C'}, yt:{bg:'#ff0000', label:'YT'},
+      vix:{bg:'#2b6aeb', label:'VIX'}, googleone:{bg:'#4285F4', label:'G1'
+    }};
+
+    const servicesList = document.getElementById('servicesList');
+
+    services.forEach((s, idx) => {
+      const div = document.createElement('div');
+      div.className = 'service glow';
+      const ribbon = (s.price<=2.5) ? `<div class="ribbon">Económico</div>` : (s.id==='net3'?`<div class="ribbon">Popular</div>`:'');
+      div.innerHTML = `${ribbon}<h3>${s.title}</h3><div class="meta">${s.note}</div><div class="price">$${s.price}</div><div style="margin-top:12px;display:flex;gap:8px"><button class='btn btn-primary' onclick="openConfirm('${s.id}')">Comprar</button><button class='btn btn-ghost' onclick="quickPreview('${s.id}')">Vista rápida</button></div>`;
+      div.style.animation = `fadeUp .5s ease ${idx*70}ms both`;
+      div.style.opacity = 0;
+      servicesList.appendChild(div);
+    });
+
+    // VIP
+    const vip = document.createElement('div');
+    vip.className = 'service';
+    vip.innerHTML = `<h3>VIP — Fotos hot de jhosep</h3><div class="meta">Contenido privado / VIP</div><div class="price">Precio privado</div><div style="margin-top:12px;display:flex;gap:8px"><button class='btn btn-primary' onclick="openVIP()">Solicitar VIP</button><button class='btn btn-ghost' onclick="quickPreview('vip')">Vista rápida</button></div>`;
+    servicesList.appendChild(vip);
+
+    const style = document.createElement('style');
+    style.innerHTML = `@keyframes fadeUp{from{opacity:0;transform:translateY(12px) scale(.995)}to{opacity:1;transform:translateY(0) scale(1)}}`;
+    document.head.appendChild(style);
+
+    // Modales
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const modalConfirm = document.getElementById('modalConfirm');
+
+    const previewBackdrop = document.getElementById('previewBackdrop');
+    const previewModal = document.getElementById('previewModal');
+    const previewLogo = document.getElementById('previewLogo');
+    const previewTitle = document.getElementById('previewTitle');
+    const previewSub = document.getElementById('previewSub');
+    const previewBody = document.getElementById('previewBody');
+    const previewBuy = document.getElementById('previewBuy');
+
+    let currentSelection = null;
+
+    function getLogoHtml(id){
+      const m = logoMap[id] || {bg:'#444', label:id.slice(0,2).toUpperCase()};
+      return `<div style="width:72px;height:72px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${m.bg};font-weight:800;color:white;font-size:28px">${m.label}</div>`;
+    }
+
+    function openConfirm(id){
+      const s = services.find(x=>x.id===id);
+      if(!s) return;
+      currentSelection = {...s};
+      modalTitle.textContent = `Confirmar: ${s.title}`;
+      modalBody.innerHTML = `<div style="margin-bottom:6px;color:#bcd1ea">${s.note}</div><div style="font-weight:800;color:#fff;font-size:1.3rem">Precio: $${s.price} — ${s.duration}</div><div class='small' style='margin-top:8px'>Se enviará por correo (simulado) la información de acceso.</div>`;
+      modalBackdrop.style.display = 'flex';
+      setTimeout(()=> modal.classList.add('show'),10);
+    }
+
+    function openVIP(){
+      currentSelection = {id:'vip-jhosep', title:'VIP — Fotos hot de jhosep', price:null};
+      modalTitle.textContent = 'Solicitar VIP — Fotos hot de jhosep';
+      modalBody.innerHTML = `<div style="margin-bottom:8px;color:#bcd1ea">Este servicio es privado. Al confirmar, un agente te contactará para acordar precio y entrega.</div><div class='small' style='margin-top:8px'>Atención: contenido para mayores de edad.</div>`;
+      modalBackdrop.style.display = 'flex';
+      setTimeout(()=> modal.classList.add('show'),10);
+    }
+
+    function closeModal(){
+      modal.classList.remove('show');
+      setTimeout(()=> modalBackdrop.style.display = 'none', 300);
+    }
+
+    modalConfirm.addEventListener('click', ()=>{
+      closeModal();
+      const selectedCard = document.getElementById('selectedCard');
+      if(currentSelection.price!=null){
+        selectedCard.textContent = `${currentSelection.title} — $${currentSelection.price}`;
+      } else {
+        selectedCard.textContent = `${currentSelection.title} — Precio privado`; 
+      }
+      document.getElementById('checkout').style.display = 'block';
+      showToast('Pedido iniciado — Revisa tu correo (simulado)');
+      launchConfetti();
+    });
+
+    // --- NUEVO: quickPreview ahora muestra un modal con logo, precio y duración ---
+    function quickPreview(id){
+      if(id==='vip'){
+        previewLogo.innerHTML = `<div style="width:72px;height:72px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:#ff4d6d;font-weight:800;color:white;font-size:20px">VIP</div>`;
+        previewTitle.textContent = 'VIP — Fotos hot de jhosep';
+        previewSub.textContent = 'Servicio privado';
+        previewBody.innerHTML = `<div style="margin-bottom:6px;color:#bcd1ea">Contenido VIP y privado. Al solicitar se coordinará precio y entrega.</div><div style="font-weight:700;color:#fff">Precio: Privado</div><div class='small' style='margin-top:8px'>Contenido para mayores de edad.</div>`;
+        previewBuy.onclick = ()=>{ closePreview(); openVIP(); };
+        previewBackdrop.style.display = 'flex';
+        setTimeout(()=> previewModal.classList.add('show'),10);
+        return;
+      }
+      const s = services.find(x=>x.id===id);
+      if(!s) return;
+      // logo
+      previewLogo.innerHTML = getLogoHtml(id);
+      previewTitle.textContent = s.title.split('—')[0].trim();
+      previewSub.textContent = s.note + ' · ' + s.duration;
+      previewBody.innerHTML = `<div style="margin-bottom:6px;color:#bcd1ea">Resumen rápido del servicio.</div><div style="font-weight:800;color:#fff;font-size:1.2rem">Precio: $${s.price} — ${s.duration}</div><div class='small' style='margin-top:8px'>Pulsa "Comprar" para continuar con el checkout.</div>`;
+      previewBuy.onclick = ()=>{ closePreview(); openConfirm(id); };
+      previewBackdrop.style.display = 'flex';
+      setTimeout(()=> previewModal.classList.add('show'),10);
+    }
+
+    function closePreview(){
+      previewModal.classList.remove('show');
+      setTimeout(()=> previewBackdrop.style.display = 'none', 260);
+    }
+
+    // toast & confetti
+    function showToast(text){
+      const t = document.getElementById('toast');
+      t.textContent = text;
+      t.style.display = 'block';
+      t.style.opacity = 0;
+      t.animate([{opacity:0, transform:'translateY(10px)'},{opacity:1, transform:'translateY(0)'}],{duration:260,fill:'forwards'});
+      setTimeout(()=>{t.animate([{opacity:1, transform:'translateY(0)'},{opacity:0, transform:'translateY(10px)'}],{duration:300,fill:'forwards'});},3000);
+    }
+
+    function launchConfetti(){
+      const colors = ['#ff6b6b','#ffd166','#6c5ce7','#60c9a9','#ffd6a5'];
+      const count = 28;
+      for(let i=0;i<count;i++){
+        const el = document.createElement('div');
+        el.className = 'confetti-piece';
+        el.style.background = colors[Math.floor(Math.random()*colors.length)];
+        el.style.left = (50 + (Math.random()-0.5)*60) + 'vw';
+        el.style.top =  '-10vh';
+        el.style.transform = `rotate(${Math.random()*360}deg)`;
+        document.body.appendChild(el);
+        const fall = el.animate([
+          {transform: `translateY(0) rotate(${Math.random()*360}deg)`, opacity:1},
+          {transform: `translateY(${80 + Math.random()*60}vh) rotate(${Math.random()*360}deg)`, opacity:0.8}
+        ],{duration:1800 + Math.random()*900, easing:'cubic-bezier(.2,.8,.2,1)'});
+        fall.onfinish = ()=> el.remove();
+      }
+    }
+
+    // handle order form submission
+    function handleOrder(e){
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const result = document.getElementById('result');
+
+      if(!currentSelection){
+        result.innerHTML = '<div style="color:#ff9b9b">Selecciona primero un servicio.</div>';
+        return;
+      }
+      if(!name || !email){
+        result.innerHTML = '<div style="color:#ff9b9b">Completa los campos obligatorios.</div>';
+        return;
+      }
+
+      result.innerHTML = '<div style="padding:10px;border-radius:8px;background:#07172a;border:1px solid rgba(255,255,255,0.03)">Procesando pedido...</div>';
+      setTimeout(()=>{
+        if(currentSelection.price!=null){
+          result.innerHTML = `<div class='success'>¡Pedido completado! ${currentSelection.title} — $${currentSelection.price}. Se ha enviado (simulado) un correo a <strong>${email}</strong>.</div>`;
+        } else {
+          result.innerHTML = `<div class='success'>Solicitud enviada. Un agente contactará para coordinar el servicio VIP.</div>`;
+        }
+        document.getElementById('orderForm').reset();
+        showToast('Compra registrada con éxito');
+        launchConfetti();
+      },1200);
+    }
+
+    // close modals on backdrop click
+    modalBackdrop.addEventListener('click', (e)=>{ if(e.target===modalBackdrop) closeModal(); });
+    previewBackdrop.addEventListener('click', (e)=>{ if(e.target===previewBackdrop) closePreview(); });
+
+    // accessibility: close modals with Escape
+    window.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ closeModal(); closePreview(); } });
+
+  </script>
+</body>
+</html>
